@@ -138,13 +138,23 @@
             const balao = document.getElementById('chatBalloon');
             if (balao) balao.classList.add('hidden');
             
-            embeddedservice_bootstrap.utilAPI.launchChat()
-                .catch((erro) => {
-                    console.error('Erro ao iniciar chat:', erro);
-                    alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
-                    if (balao) balao.classList.remove('hidden');
-                });
+            // Verificar se a API está disponível antes de chamar
+            if (embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI && typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function') {
+                embeddedservice_bootstrap.utilAPI.launchChat()
+                    .catch((erro) => {
+                        console.error('Erro ao iniciar chat:', erro);
+                        alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
+                        if (balao) balao.classList.remove('hidden');
+                    });
+            } else {
+                console.error('API do chat não está disponível');
+                alert('O serviço de chat ainda não está pronto. Tente novamente em alguns segundos.');
+                if (balao) balao.classList.remove('hidden');
+            }
         }
+        
+        // Variável global para verificar se o chat está pronto
+        var chatPronto = false;
     </script>
 
     <!-- Script do Salesforce Embedded Service -->
@@ -154,6 +164,12 @@
                 embeddedservice_bootstrap.settings.language = 'pt_BR';
                 embeddedservice_bootstrap.settings.displayHelpButton = false;
                 embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
+                
+                // Adicionar evento para capturar quando o serviço estiver carregado
+                embeddedservice_bootstrap.addEventHandler("afterInitialization", function() {
+                    console.log("Chat inicializado com sucesso!");
+                    chatPronto = true;
+                });
                 
                 embeddedservice_bootstrap.init(
                     '00DVA000001eH3B',
