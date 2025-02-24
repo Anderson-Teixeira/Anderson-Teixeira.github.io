@@ -5,126 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Adium</title>
   <style>
-            /* Esconder botão original do Salesforce */
-        .embeddedServiceHelpButton {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        
-        .botao-chat-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Espaço entre o balão e o botão */
-        }
-
-        /* Estilo do balão de mensagem */
-        .chat-balloon {
-            background: #fff;
-            padding: 12px 20px;
-            border-radius: 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #333;
-            position: relative;
-            margin-right: 10px;
-            border: 1px solid #e0e0e0;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        /* Triângulo do balão */
-        .chat-balloon::after {
-            content: '';
-            position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-left: 10px solid #fff;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-        }
-
-        /* Animação de entrada */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .botao-chat {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(to right, #ff0000, #e60000);
-            width: 55px;
-            height: 55px;
-            padding: 0;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        .botao-chat:hover {
-            background: linear-gradient(to right, #e60000, #cc0000);
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-            transform: scale(1.1);
-        }
-        .botao-chat:disabled {
-            background: #ffcccc;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-            display: none;
-        }
-        .chat-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            padding: 10px;
-        }
-
-        /* Classe para esconder o balão quando o chat estiver aberto */
-        .hidden {
-            display: none !important;
-        }
+    /* Esconder botão original do Salesforce */
+    .embeddedServiceHelpButton {
+      display: none !important;
+      visibility: hidden !important;
+    }
     
-    .loading-indicator {
-      display: none;
+    .botao-chat-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Espaço entre o balão e o botão */
+    }
+
+    /* Estilo do balão de mensagem */
+    .chat-balloon {
+      background: #fff;
+      padding: 12px 20px;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      position: relative;
+      margin-right: 10px;
+      border: 1px solid #e0e0e0;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* Triângulo do balão */
+    .chat-balloon::after {
+      content: '';
       position: absolute;
+      right: -10px;
       top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 24px;
-      height: 24px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
+      transform: translateY(-50%);
+      border-left: 10px solid #fff;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
     }
-    
+
+    /* Animação de entrada */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
     
-    @keyframes spin {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
+    .botao-chat {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right, #ff0000, #e60000);
+      width: 55px;
+      height: 55px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      overflow: hidden;
     }
     
-    .botao-chat.loading .loading-indicator { display: block; }
+    .botao-chat:hover {
+      background: linear-gradient(to right, #e60000, #cc0000);
+      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .botao-chat:disabled {
+      background: #ffcccc;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      display: none;
+    }
+    
+    .chat-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      padding: 10px;
+    }
+
+    /* Classe para esconder o balão quando o chat estiver aberto */
+    .hidden {
+      display: none !important;
+    }
+    
+    .loading-indicator { 
+      display: none; 
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      width: 24px; 
+      height: 24px; 
+      border: 3px solid rgba(255, 255, 255, 0.3); 
+      border-radius: 50%; 
+      border-top-color: white; 
+      animation: spin 1s ease-in-out infinite; 
+    }
+    
+    @keyframes spin { 
+      to { transform: translate(-50%, -50%) rotate(360deg); } 
+    }
+    
+    .botao-chat.loading .loading-indicator { display: block; } 
     .botao-chat.loading .chat-img { opacity: 0.5; }
-    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -158,33 +155,6 @@
       // Cache de elementos DOM
       let botao, balao;
       
-      // Inicialização
-      const init = () => {
-        botao = document.getElementById('botaoChat');
-        balao = document.getElementById('chatBalloon');
-        
-        // Carregar script
-        setTimeout(carregarScript, 1000);
-        
-        // Configurar interações do balão
-        botao.addEventListener('mouseenter', () => {
-          if (!carregando && !inicializado) {
-            balao.classList.remove('hidden');
-          }
-        });
-        
-        botao.addEventListener('mouseleave', () => {
-          setTimeout(() => {
-            balao.classList.add('hidden');
-          }, 2000);
-        });
-        
-        // Esconder balão após 5 segundos
-        setTimeout(() => {
-          balao.classList.add('hidden');
-        }, 5000);
-      };
-      
       // Gerencia estado de carregamento
       const setCarregando = (estado) => {
         carregando = estado;
@@ -204,32 +174,6 @@
         return typeof embeddedservice_bootstrap !== 'undefined' && 
                embeddedservice_bootstrap.utilAPI && 
                typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
-      };
-      
-      // Carrega o script do Salesforce
-      const carregarScript = () => {
-        // Remove script existente se houver
-        const scriptExistente = document.getElementById('bootstrap-script');
-        if (scriptExistente) {
-          scriptExistente.remove();
-        }
-        
-        // Cria o novo script
-        const script = document.createElement('script');
-        script.id = 'bootstrap-script';
-        script.type = 'text/javascript';
-        script.src = config.scriptUrl;
-        
-        // Eventos do script
-        script.onload = () => setTimeout(configurarChat, 1500);
-        
-        script.onerror = () => {
-          setCarregando(false);
-          alert('Não foi possível carregar o serviço de chat. Verifique sua conexão.');
-        };
-        
-        // Adiciona script na página
-        document.head.appendChild(script);
       };
       
       // Configura o chat do Salesforce
@@ -288,6 +232,32 @@
         }
       };
       
+      // Carrega o script do Salesforce
+      const carregarScript = () => {
+        // Remove script existente se houver
+        const scriptExistente = document.getElementById('bootstrap-script');
+        if (scriptExistente) {
+          scriptExistente.remove();
+        }
+        
+        // Cria o novo script
+        const script = document.createElement('script');
+        script.id = 'bootstrap-script';
+        script.type = 'text/javascript';
+        script.src = config.scriptUrl;
+        
+        // Eventos do script
+        script.onload = () => setTimeout(configurarChat, 1500);
+        
+        script.onerror = () => {
+          setCarregando(false);
+          alert('Não foi possível carregar o serviço de chat. Verifique sua conexão.');
+        };
+        
+        // Adiciona script na página
+        document.head.appendChild(script);
+      };
+      
       // Inicia o chat quando o botão é clicado
       const iniciar = () => {
         if (carregando) return;
@@ -335,6 +305,33 @@
         }
       };
       
+      // Inicialização
+      const init = () => {
+        botao = document.getElementById('botaoChat');
+        balao = document.getElementById('chatBalloon');
+        
+        // Carregar script
+        setTimeout(carregarScript, 1000);
+        
+        // Configurar interações do balão
+        botao.addEventListener('mouseenter', () => {
+          if (!carregando && !inicializado) {
+            balao.classList.remove('hidden');
+          }
+        });
+        
+        botao.addEventListener('mouseleave', () => {
+          setTimeout(() => {
+            balao.classList.add('hidden');
+          }, 2000);
+        });
+        
+        // Esconder balão após 5 segundos
+        setTimeout(() => {
+          balao.classList.add('hidden');
+        }, 5000);
+      };
+      
       // Detecta erros de script
       window.addEventListener('error', (e) => {
         if (e.filename && e.filename.includes('bootstrap.min.js')) {
@@ -348,7 +345,8 @@
       // API pública
       return {
         iniciar,
-        carregarScript
+        carregarScript,
+        carregar: carregarScript
       };
     })();
   </script>
