@@ -67,21 +67,27 @@
             background: linear-gradient(to right, #ff0000, #e60000);
             width: 55px;
             height: 55px;
+            padding: 0;
             border: none;
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
             transition: all 0.3s ease;
+            overflow: hidden;
         }
         
         .botao-chat:hover {
             background: linear-gradient(to right, #e60000, #cc0000);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
             transform: scale(1.1);
         }
         
         .botao-chat:disabled {
             background: #ffcccc;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            display: none;
         }
         
         .chat-img {
@@ -90,7 +96,7 @@
             object-fit: cover;
             padding: 10px;
         }
-        
+
         /* Classe para esconder o balão quando o chat estiver aberto */
         .hidden {
             display: none !important;
@@ -129,7 +135,9 @@
         <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
         <button id="botaoChat" class="botao-chat" onclick="tentarIniciarChat()">
             <div class="loading-indicator"></div>
-            <img src="images/Adium Logo vermelho.png" alt="Logo Adium" class="chat-img"/>
+            <img src="https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png" 
+                 alt="Logo Adium" 
+                 class="chat-img"/>
         </button>
     </div>
 
@@ -221,7 +229,7 @@
             var script = document.createElement('script');
             script.id = 'bootstrap-script';
             script.type = 'text/javascript';
-            script.src = 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js';
+            script.src = 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537/assets/js/bootstrap.min.js';
             
             // Eventos do script
             script.onload = function() {
@@ -254,9 +262,9 @@
                 embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
                 
                 // Configuração de avatares e logos
-                embeddedservice_bootstrap.settings.avatarImgURL = "images/Adium Logo vermelho.png";
-                embeddedservice_bootstrap.settings.chatbotAvatarImgURL = "images/Adium Logo vermelho.png";
-                embeddedservice_bootstrap.settings.smallCompanyLogoImgURL = "images/Adium Logo vermelho.png";
+                embeddedservice_bootstrap.settings.avatarImgURL = "https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png";
+                embeddedservice_bootstrap.settings.chatbotAvatarImgURL = "https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png";
+                embeddedservice_bootstrap.settings.smallCompanyLogoImgURL = "https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png";
                 
                 // Configurações adicionais
                 embeddedservice_bootstrap.settings.storageDomain = window.location.hostname;
@@ -271,8 +279,8 @@
                 // Inicializa o chat
                 embeddedservice_bootstrap.init(
                     '00DVA000001eH3B',
-                    'ChatAdium_GitHubPages',
-                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
+                    'AdiumZodiacChat',
+                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537',
                     {
                         scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
                     }
@@ -304,12 +312,9 @@
         window.addEventListener('load', function() {
             setTimeout(carregarScriptChat, 1000);
             
-            // Adiciona toggle para o balão de mensagem no hover
-            const balao = document.getElementById('chatBalloon');
-            const botao = document.getElementById('botaoChat');
-            
             // Esconde o balão após 5 segundos
             setTimeout(function() {
+                const balao = document.getElementById('chatBalloon');
                 if (balao) balao.classList.add('hidden');
             }, 5000);
         });
