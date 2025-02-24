@@ -116,49 +116,6 @@
             line-height: 1.6;
         }
     </style>
-    <!-- Script para iniciar o chat quando o botão for clicado -->
-    <script type="text/javascript">
-        function iniciarChat() {
-            const balao = document.getElementById('chatBalloon');
-            if (balao) balao.classList.add('hidden');
-            
-            // Verificar se a API está disponível antes de chamar
-            if (embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI && typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function') {
-                embeddedservice_bootstrap.utilAPI.launchChat()
-                    .catch((erro) => {
-                        console.error('Erro ao iniciar chat:', erro);
-                        alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
-                        if (balao) balao.classList.remove('hidden');
-                    });
-            } else {
-                console.error('API do chat não está disponível');
-                alert('O serviço de chat ainda não está pronto. Tente novamente em alguns segundos.');
-                if (balao) balao.classList.remove('hidden');
-            }
-        }
-    </script>
-    <!-- Snippet Salesforce fornecido -->
-    <script type='text/javascript'>
-        function initEmbeddedMessaging() {
-            try {
-                embeddedservice_bootstrap.settings.language = 'pt_BR'; // For example, enter 'en' or 'en-US'
-                embeddedservice_bootstrap.settings.displayHelpButton = false;
-                embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
-                
-                embeddedservice_bootstrap.init(
-                    '00DVA000001eH3B',
-                    'ChatAdium_GitHubPages',
-                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
-                    {
-                        scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
-                    }
-                );
-            } catch (err) {
-                console.error('Error loading Embedded Messaging: ', err);
-            }
-        };
-    </script>
-    <script type='text/javascript' src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 </head>
 <body>
     <h1>Minha Página com Chat do Salesforce</h1>
@@ -168,11 +125,106 @@
     <!-- Botão de chat personalizado -->
     <div class="botao-chat-container">
         <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
-        <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
+        <button id="botaoChat" class="botao-chat" onclick="tentarIniciarChat()">
             <img src="images/Adium Logo vermelho.png" 
                  alt="Logo Adium" 
                  class="chat-img"/>
         </button>
     </div>
+
+    <!-- Script para iniciar o chat quando o botão for clicado -->
+    <script type="text/javascript">
+        // Variável global para verificar tentativas
+        var tentativas = 0;
+        var maxTentativas = 5;
+        var intervaloTentativa = 2000; // 2 segundos entre tentativas
+        
+        function tentarIniciarChat() {
+            const balao = document.getElementById('chatBalloon');
+            if (balao) balao.classList.add('hidden');
+            
+            // Verificar se a API está disponível
+            if (typeof embeddedservice_bootstrap !== 'undefined' && 
+                embeddedservice_bootstrap.utilAPI && 
+                typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function') {
+                
+                embeddedservice_bootstrap.utilAPI.launchChat()
+                    .catch((erro) => {
+                        console.error('Erro ao iniciar chat:', erro);
+                        if (balao) balao.classList.remove('hidden');
+                        alert('Não foi possível iniciar o chat. Por favor, tente novamente mais tarde.');
+                    });
+            } else {
+                // Se a API não estiver disponível e ainda não atingimos o máximo de tentativas
+                if (tentativas < maxTentativas) {
+                    tentativas++;
+                    console.log(`API do chat não disponível. Tentativa ${tentativas} de ${maxTentativas}...`);
+                    
+                    // Tentar novamente após um intervalo
+                    setTimeout(tentarIniciarChat, intervaloTentativa);
+                } else {
+                    console.error('API do chat não está disponível após várias tentativas');
+                    if (balao) balao.classList.remove('hidden');
+                    
+                    // Tenta reiniciar o chat do zero
+                    console.log('Tentando reiniciar o chat...');
+                    tentativas = 0; // Reset tentativas
+                    
+                    // Remove scripts antigos
+                    var scriptAntigo = document.getElementById('bootstrap-script');
+                    if (scriptAntigo) {
+                        scriptAntigo.remove();
+                    }
+                    
+                    // Recarrega o script
+                    carregarScriptChat();
+                    
+                    alert('O serviço de chat não está respondendo. Recarregando componentes...');
+                }
+            }
+        }
+        
+        function carregarScriptChat() {
+            // Cria o novo script
+            var script = document.createElement('script');
+            script.id = 'bootstrap-script';
+            script.type = 'text/javascript';
+            script.src = 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js';
+            script.onload = initEmbeddedMessaging;
+            
+            // Adiciona o script na página
+            document.head.appendChild(script);
+        }
+        
+        // Função para inicializar o chat com delay para garantir carregamento completo
+        function initEmbeddedMessaging() {
+            // Pequeno delay para garantir carregamento completo da página
+            setTimeout(function() {
+                try {
+                    embeddedservice_bootstrap.settings.language = 'pt_BR';
+                    embeddedservice_bootstrap.settings.displayHelpButton = false;
+                    embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
+                    
+                    embeddedservice_bootstrap.init(
+                        '00DVA000001eH3B',
+                        'ChatAdium_GitHubPages',
+                        'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
+                        {
+                            scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
+                        }
+                    );
+                    
+                    console.log('Chat inicializado com sucesso!');
+                } catch (err) {
+                    console.error('Erro ao carregar o Embedded Messaging:', err);
+                }
+            }, 1000);
+        }
+    </script>
+    
+    <!-- Carrega o script do chat automaticamente ao carregar a página -->
+    <script type="text/javascript">
+        window.addEventListener('load', carregarScriptChat);
+    </script>
 </body>
 </html>
