@@ -116,27 +116,8 @@
             line-height: 1.6;
         }
     </style>
-</head>
-<body>
-    <h1>Minha Página com Chat do Salesforce</h1>
-    <p>Este é um exemplo de uma página que utiliza o Embedded Service Chat do Salesforce com um botão personalizado.</p>
-    <p>Clique no botão vermelho no canto inferior direito para iniciar uma conversa.</p>
-    
-    <!-- Botão de chat personalizado -->
-    <div class="botao-chat-container">
-        <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
-        <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
-            <img src="images/Adium Logo vermelho.png" 
-                 alt="Logo Adium" 
-                 class="chat-img"/>
-        </button>
-    </div>
-
     <!-- Script para iniciar o chat quando o botão for clicado -->
     <script type="text/javascript">
-        // Variável global para verificar se o chat está pronto
-        var chatPronto = false;
-        
         function iniciarChat() {
             const balao = document.getElementById('chatBalloon');
             if (balao) balao.classList.add('hidden');
@@ -155,20 +136,12 @@
                 if (balao) balao.classList.remove('hidden');
             }
         }
-        
-        // Verificar periodicamente se a API está disponível
-        setInterval(function() {
-            if (embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
-                chatPronto = true;
-            }
-        }, 1000);
     </script>
-
-    <!-- Script do Salesforce Embedded Service - Novo snippet fornecido -->
+    <!-- Snippet Salesforce fornecido -->
     <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
-                embeddedservice_bootstrap.settings.language = 'pt_BR';
+                embeddedservice_bootstrap.settings.language = 'pt_BR'; // For example, enter 'en' or 'en-US'
                 embeddedservice_bootstrap.settings.displayHelpButton = false;
                 embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
                 
@@ -183,11 +156,23 @@
             } catch (err) {
                 console.error('Error loading Embedded Messaging: ', err);
             }
-        }
+        };
     </script>
-    <script type='text/javascript' 
-            src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js' 
-            onload='initEmbeddedMessaging()'>
-    </script>
+    <script type='text/javascript' src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+</head>
+<body>
+    <h1>Minha Página com Chat do Salesforce</h1>
+    <p>Este é um exemplo de uma página que utiliza o Embedded Service Chat do Salesforce com um botão personalizado.</p>
+    <p>Clique no botão vermelho no canto inferior direito para iniciar uma conversa.</p>
+    
+    <!-- Botão de chat personalizado -->
+    <div class="botao-chat-container">
+        <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
+        <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
+            <img src="images/Adium Logo vermelho.png" 
+                 alt="Logo Adium" 
+                 class="chat-img"/>
+        </button>
+    </div>
 </body>
 </html>
