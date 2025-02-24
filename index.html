@@ -99,7 +99,7 @@
             display: none !important;
         }
         
-        /* Conteúdo da página */
+        /* Estilos para a página */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -116,6 +116,38 @@
             line-height: 1.6;
         }
     </style>
+</head>
+<body>
+    <h1>Minha Página com Chat do Salesforce</h1>
+    <p>Este é um exemplo de uma página que utiliza o Embedded Service Chat do Salesforce com um botão personalizado.</p>
+    <p>Clique no botão vermelho no canto inferior direito para iniciar uma conversa.</p>
+    
+    <!-- Botão de chat personalizado -->
+    <div class="botao-chat-container">
+        <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
+        <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
+            <img src="images/Adium Logo vermelho.png" 
+                 alt="Logo Adium" 
+                 class="chat-img"/>
+        </button>
+    </div>
+
+    <!-- Script para iniciar o chat quando o botão for clicado -->
+    <script type="text/javascript">
+        function iniciarChat() {
+            const balao = document.getElementById('chatBalloon');
+            if (balao) balao.classList.add('hidden');
+            
+            embeddedservice_bootstrap.utilAPI.launchChat()
+                .catch((erro) => {
+                    console.error('Erro ao iniciar chat:', erro);
+                    alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
+                    if (balao) balao.classList.remove('hidden');
+                });
+        }
+    </script>
+
+    <!-- Script do Salesforce Embedded Service -->
     <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
@@ -135,36 +167,10 @@
                 console.error('Error loading Embedded Messaging: ', err);
             }
         }
-        function iniciarChat() {
-            const balao = document.getElementById('chatBalloon');
-            if (balao) balao.classList.add('hidden');
-            
-            embeddedservice_bootstrap.utilAPI.launchChat()
-                .catch((erro) => {
-                    console.error('Erro ao iniciar chat:', erro);
-                    alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
-                    if (balao) balao.classList.remove('hidden');
-                });
-        }
     </script>
     <script type='text/javascript' 
             src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537/assets/js/bootstrap.min.js' 
             onload='initEmbeddedMessaging()'>
     </script>
-</head>
-<body>
-    <h1>Minha Página com Chat do Salesforce</h1>
-    <p>Este é um exemplo de uma página que utiliza o Embedded Service Chat do Salesforce com um botão personalizado.</p>
-    <p>Clique no botão vermelho no canto inferior direito para iniciar uma conversa.</p>
-    
-    <!-- Botão de chat personalizado -->
-    <div class="botao-chat-container">
-        <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
-        <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
-            <img src="images/Adium Logo vermelho.png" 
-                 alt="Logo Adium" 
-                 class="chat-img"/>
-        </button>
-    </div>
 </body>
 </html>
