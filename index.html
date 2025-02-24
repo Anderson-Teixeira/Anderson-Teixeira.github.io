@@ -1,169 +1,177 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Adium</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Adium</title>
+  <style>
+    .embeddedServiceHelpButton { display: none !important; visibility: hidden !important; }
+    
+    .botao-chat-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-    <!-- Carregar jQuery atualizado -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    .chat-balloon {
+      background: #fff;
+      padding: 12px 20px;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      border: 1px solid #e0e0e0;
+      animation: fadeIn 0.3s ease-in-out;
+    }
 
-    <style>
-        /* Esconder botão original do Salesforce */
-        .embeddedServiceHelpButton {
-            display: none !important;
-            visibility: hidden !important;
-        }
-        
-        .botao-chat-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .chat-balloon::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 10px solid #fff;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+    }
 
-        /* Estilo do balão de mensagem */
-        .chat-balloon {
-            background: #fff;
-            padding: 12px 20px;
-            border-radius: 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #333;
-            position: relative;
-            margin-right: 10px;
-            border: 1px solid #e0e0e0;
-            animation: fadeIn 0.3s ease-in-out;
-        }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
-        /* Triângulo do balão */
-        .chat-balloon::after {
-            content: '';
-            position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-left: 10px solid #fff;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-        }
+    .botao-chat {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right, #ff0000, #e60000);
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    .botao-chat:hover { transform: scale(1.1); }
+    .botao-chat:disabled { background: #ffcccc; cursor: not-allowed; display: none; }
 
-        /* Animação de entrada */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .botao-chat {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(to right, #ff0000, #e60000);
-            width: 55px;
-            height: 55px;
-            padding: 0;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        .botao-chat:hover {
-            background: linear-gradient(to right, #e60000, #cc0000);
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-            transform: scale(1.1);
-        }
-        .botao-chat:disabled {
-            background: #ffcccc;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-            display: none;
-        }
-        .chat-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            padding: 10px;
-        }
-
-        /* Classe para esconder o balão quando o chat estiver aberto */
-        .hidden {
-            display: none !important;
-        }
-    </style>
+    .loading-indicator {
+      display: none;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
+  <div class="botao-chat-container">
+    <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
+    <button id="botaoChat" class="botao-chat" onclick="ChatApp.iniciar()">
+      <div class="loading-indicator"></div>
+      <img src="images/Adium Logo vermelho.png" alt="Logo Adium" class="chat-img">
+    </button>
+  </div>
 
-    <div class="botao-chat-container">
-        <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
-        <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
-            <img src="https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png" 
-                 alt="Logo Adium" 
-                 class="chat-img"/>
-        </button>
-    </div>
+  <script>
+    const ChatApp = (() => {
+      const config = {
+        scriptUrl: 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js',
+        orgId: '00DVA000001eH3B',
+        componentName: 'ChatAdium_GitHubPages',
+        deploymentUrl: 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
+        scrtUrl: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com',
+        maxTentativas: 5,
+        intervalo: 2000
+      };
+      
+      let tentativas = 0;
+      let carregando = false;
+      let inicializado = false;
+      
+      const botao = document.getElementById('botaoChat');
+      const balao = document.getElementById('chatBalloon');
 
-    <script>
-        function iniciarChat() {
-            const balao = document.getElementById('chatBalloon');
-            if (balao) balao.classList.add('hidden');
+      const setCarregando = (estado) => {
+        carregando = estado;
+        botao.classList.toggle('loading', estado);
+        botao.disabled = estado;
+        balao.classList.add('hidden');
+      };
+      
+      const verificarAPIDisponivel = () => typeof embeddedservice_bootstrap !== 'undefined' &&
+                                         embeddedservice_bootstrap.utilAPI &&
+                                         typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
 
-            if (typeof embeddedservice_bootstrap !== "undefined" && embeddedservice_bootstrap.utilAPI) {
-                embeddedservice_bootstrap.utilAPI.launchChat()
-                    .catch((erro) => {
-                        console.error('Erro ao iniciar chat:', erro);
-                        alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
-                        if (balao) balao.classList.remove('hidden');
-                    });
-            } else {
-                console.error('Salesforce Chat não carregado corretamente.');
-                alert('Erro ao carregar o chat. Verifique a conexão.');
-                if (balao) balao.classList.remove('hidden');
-            }
+      const carregarScript = () => {
+        const script = document.createElement('script');
+        script.id = 'bootstrap-script';
+        script.type = 'text/javascript';
+        script.src = config.scriptUrl;
+        script.onload = () => setTimeout(configurarChat, 1500);
+        script.onerror = () => alert('Erro ao carregar o chat.');
+        document.head.appendChild(script);
+      };
+
+      const configurarChat = () => {
+        if (!verificarAPIDisponivel()) {
+          setTimeout(configurarChat, 2000);
+          return;
         }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            initEmbeddedMessaging();
+        
+        embeddedservice_bootstrap.init(
+          config.orgId,
+          config.componentName,
+          config.deploymentUrl,
+          { scrt2URL: config.scrtUrl }
+        );
+        
+        embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', () => {
+          inicializado = true;
+          setCarregando(false);
         });
-
-        function initEmbeddedMessaging() {
-            try {
-                if (typeof embeddedservice_bootstrap !== "undefined") {
-                    embeddedservice_bootstrap.settings.language = 'pt_BR';
-
-                    embeddedservice_bootstrap.init(
-                        '00DVA000001eH3B',
-                        'ChatAdium_GitHubPages',
-                        'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
-                        {
-                            scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
-                        }
-                    );
-                } else {
-                    console.error("Salesforce Embedded Service não carregado.");
-                }
-            } catch (err) {
-                console.error('Erro ao carregar o Salesforce Chat:', err);
-            }
+        
+        embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', () => {
+          inicializado = false;
+          balao.classList.remove('hidden');
+        });
+      };
+      
+      const iniciar = () => {
+        if (carregando) return;
+        setCarregando(true);
+        
+        if (verificarAPIDisponivel()) {
+          embeddedservice_bootstrap.utilAPI.launchChat().then(() => {
+            inicializado = true;
+            setCarregando(false);
+          }).catch(() => {
+            setCarregando(false);
+            alert('Erro ao iniciar o chat.');
+          });
+        } else if (tentativas < config.maxTentativas) {
+          tentativas++;
+          if (tentativas === 1 && !document.getElementById('bootstrap-script')) carregarScript();
+          setTimeout(iniciar, config.intervalo);
+        } else {
+          tentativas = 0;
+          setCarregando(false);
+          carregarScript();
+          alert('O serviço de chat não está respondendo.');
         }
-    </script>
-
-    <script type='text/javascript' 
-            src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js' 
-            onload='initEmbeddedMessaging()'>
-    </script>
-
+      };
+      
+      window.addEventListener('load', () => setTimeout(carregarScript, 1000));
+      return { iniciar };
+    })();
+  </script>
 </body>
 </html>
