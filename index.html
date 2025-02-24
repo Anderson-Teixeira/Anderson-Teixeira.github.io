@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Adium</title>
+
+    <!-- Carregar jQuery atualizado -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <style>
         /* Esconder botão original do Salesforce */
         .embeddedServiceHelpButton {
@@ -116,32 +120,44 @@
             const balao = document.getElementById('chatBalloon');
             if (balao) balao.classList.add('hidden');
 
-            embeddedservice_bootstrap.utilAPI.launchChat()
-                .catch((erro) => {
-                    console.error('Erro ao iniciar chat:', erro);
-                    alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
-                    if (balao) balao.classList.remove('hidden');
-                });
+            if (typeof embeddedservice_bootstrap !== "undefined" && embeddedservice_bootstrap.utilAPI) {
+                embeddedservice_bootstrap.utilAPI.launchChat()
+                    .catch((erro) => {
+                        console.error('Erro ao iniciar chat:', erro);
+                        alert('Não foi possível iniciar o chat no momento. Tente novamente mais tarde.');
+                        if (balao) balao.classList.remove('hidden');
+                    });
+            } else {
+                console.error('Salesforce Chat não carregado corretamente.');
+                alert('Erro ao carregar o chat. Verifique a conexão.');
+                if (balao) balao.classList.remove('hidden');
+            }
         }
-    </script>
 
-    <script type='text/javascript'>
+        document.addEventListener("DOMContentLoaded", function () {
+            initEmbeddedMessaging();
+        });
+
         function initEmbeddedMessaging() {
             try {
-                embeddedservice_bootstrap.settings.language = 'pt_BR';
+                if (typeof embeddedservice_bootstrap !== "undefined") {
+                    embeddedservice_bootstrap.settings.language = 'pt_BR';
 
-                embeddedservice_bootstrap.init(
-                    '00DVA000001eH3B',
-                    'ChatAdium_GitHubPages',
-                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
-                    {
-                        scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
-                    }
-                );
+                    embeddedservice_bootstrap.init(
+                        '00DVA000001eH3B',
+                        'ChatAdium_GitHubPages',
+                        'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
+                        {
+                            scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
+                        }
+                    );
+                } else {
+                    console.error("Salesforce Embedded Service não carregado.");
+                }
             } catch (err) {
-                console.error('Error loading Embedded Messaging: ', err);
+                console.error('Erro ao carregar o Salesforce Chat:', err);
             }
-        };
+        }
     </script>
 
     <script type='text/javascript' 
