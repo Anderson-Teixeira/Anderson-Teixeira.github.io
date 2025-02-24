@@ -135,9 +135,7 @@
         <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
         <button id="botaoChat" class="botao-chat" onclick="tentarIniciarChat()">
             <div class="loading-indicator"></div>
-            <img src="https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png" 
-                 alt="Logo Adium" 
-                 class="chat-img"/>
+            <img src="images/Adium Logo vermelho.png" alt="Logo Adium" class="chat-img"/>
         </button>
     </div>
 
@@ -167,9 +165,6 @@
             
             setCarregando(true);
             
-            const balao = document.getElementById('chatBalloon');
-            if (balao) balao.classList.add('hidden');
-            
             // Verificar se a API está disponível
             if (typeof embeddedservice_bootstrap !== 'undefined' && 
                 embeddedservice_bootstrap.utilAPI && 
@@ -182,7 +177,6 @@
                     .catch((erro) => {
                         console.error('Erro ao iniciar chat:', erro);
                         setCarregando(false);
-                        if (balao) balao.classList.remove('hidden');
                         alert('Não foi possível iniciar o chat. Tente novamente mais tarde.');
                     });
             } else {
@@ -201,8 +195,6 @@
                     // Recarrega tudo
                     tentativas = 0;
                     setCarregando(false);
-                    
-                    if (balao) balao.classList.remove('hidden');
                     
                     // Remove scripts antigos
                     var scriptAntigo = document.getElementById('bootstrap-script');
@@ -229,7 +221,7 @@
             var script = document.createElement('script');
             script.id = 'bootstrap-script';
             script.type = 'text/javascript';
-            script.src = 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537/assets/js/bootstrap.min.js';
+            script.src = 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js';
             
             // Eventos do script
             script.onload = function() {
@@ -238,8 +230,6 @@
             
             script.onerror = function() {
                 setCarregando(false);
-                const balao = document.getElementById('chatBalloon');
-                if (balao) balao.classList.remove('hidden');
                 alert('Não foi possível carregar o serviço de chat. Verifique sua conexão.');
             };
             
@@ -262,9 +252,9 @@
                 embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
                 
                 // Configuração de avatares e logos
-                embeddedservice_bootstrap.settings.avatarImgURL = "https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png";
-                embeddedservice_bootstrap.settings.chatbotAvatarImgURL = "https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png";
-                embeddedservice_bootstrap.settings.smallCompanyLogoImgURL = "https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png";
+                embeddedservice_bootstrap.settings.avatarImgURL = "images/Adium Logo vermelho.png";
+                embeddedservice_bootstrap.settings.chatbotAvatarImgURL = "images/Adium Logo vermelho.png";
+                embeddedservice_bootstrap.settings.smallCompanyLogoImgURL = "images/Adium Logo vermelho.png";
                 
                 // Configurações adicionais
                 embeddedservice_bootstrap.settings.storageDomain = window.location.hostname;
@@ -279,8 +269,8 @@
                 // Inicializa o chat
                 embeddedservice_bootstrap.init(
                     '00DVA000001eH3B',
-                    'AdiumZodiacChat',
-                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537',
+                    'ChatAdium_GitHubPages',
+                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
                     {
                         scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
                     }
@@ -291,17 +281,9 @@
                     embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', function() {
                         setCarregando(false);
                     });
-                    
-                    embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', function() {
-                        console.log('Chat encerrado');
-                        const balao = document.getElementById('chatBalloon');
-                        if (balao) balao.classList.remove('hidden');
-                    });
                 }
             } catch (err) {
                 setCarregando(false);
-                const balao = document.getElementById('chatBalloon');
-                if (balao) balao.classList.remove('hidden');
                 alert('Erro ao inicializar o chat. Recarregue a página e tente novamente.');
             }
         }
@@ -312,10 +294,27 @@
         window.addEventListener('load', function() {
             setTimeout(carregarScriptChat, 1000);
             
+            // Adiciona toggle para o balão de mensagem no hover
+            const balao = document.getElementById('chatBalloon');
+            const botao = document.getElementById('botaoChat');
+            
+            // Mostra o balão quando o mouse passar sobre o botão
+            botao.addEventListener('mouseenter', function() {
+                if (!chatCarregando) {
+                    balao.classList.remove('hidden');
+                }
+            });
+            
+            // Esconde o balão quando o mouse sair do botão
+            botao.addEventListener('mouseleave', function() {
+                setTimeout(function() {
+                    balao.classList.add('hidden');
+                }, 2000);
+            });
+            
             // Esconde o balão após 5 segundos
             setTimeout(function() {
-                const balao = document.getElementById('chatBalloon');
-                if (balao) balao.classList.add('hidden');
+                balao.classList.add('hidden');
             }, 5000);
         });
     </script>
