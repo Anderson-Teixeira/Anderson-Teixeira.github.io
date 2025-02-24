@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Adium - Suporte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #0056b3;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .content {
+            background-color: white;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Bem-vindo ao Chat de Suporte</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="content">
+            <h2>Como podemos ajudar?</h2>
+            <p>Utilize nosso chat online para falar com um dos nossos atendentes. Estamos à disposição para ajudar com suas dúvidas.</p>
+            <p>Para iniciar uma conversa, clique no ícone de chat que aparecerá no canto inferior direito da tela.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Adium. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Embedded Messaging Scripts -->
+    <script type='text/javascript'>
+        function initEmbeddedMessaging() {
+            try {
+                embeddedservice_bootstrap.settings.language = 'pt_BR'; // For example, enter 'en' or 'en-US'
+                embeddedservice_bootstrap.init(
+                    '00DVA000001eH3B',
+                    'ChatAdium_GitHubPages',
+                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
+                    {
+                        scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
+                    }
+                );
+            } catch (err) {
+                console.error('Error loading Embedded Messaging: ', err);
+            }
+        };
+    </script>
+    <script type='text/javascript' src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+</body>
+</html>
