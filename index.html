@@ -115,6 +115,33 @@
         p {
             line-height: 1.6;
         }
+
+        /* Indicador de carregamento */
+        .loading-indicator {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .botao-chat.loading .loading-indicator {
+            display: block;
+        }
+
+        .botao-chat.loading .chat-img {
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -126,6 +153,7 @@
     <div class="botao-chat-container">
         <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
         <button id="botaoChat" class="botao-chat" onclick="tentarIniciarChat()">
+            <div class="loading-indicator"></div>
             <img src="images/Adium Logo vermelho.png" 
                  alt="Logo Adium" 
                  class="chat-img"/>
@@ -134,41 +162,85 @@
 
     <!-- Script para iniciar o chat quando o botão for clicado -->
     <script type="text/javascript">
-        // Variável global para verificar tentativas
+        // Variáveis globais
         var tentativas = 0;
         var maxTentativas = 5;
         var intervaloTentativa = 2000; // 2 segundos entre tentativas
+        var chatInicializado = false;
+        var chatCarregando = false;
         
+        // Função para mostrar estado de carregamento
+        function setCarregando(estado) {
+            const botao = document.getElementById('botaoChat');
+            if (estado) {
+                botao.classList.add('loading');
+                botao.disabled = true;
+            } else {
+                botao.classList.remove('loading');
+                botao.disabled = false;
+            }
+            chatCarregando = estado;
+        }
+        
+        // Função para verificar se o Salesforce ESW está inicializado
+        function verificarEswInicializado() {
+            return typeof embeddedservice_bootstrap !== 'undefined' && 
+                   embeddedservice_bootstrap.utilAPI && 
+                   typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
+        }
+        
+        // Função principal para iniciar o chat
         function tentarIniciarChat() {
+            // Evitar múltiplos cliques
+            if (chatCarregando) return;
+            
+            setCarregando(true);
+            
             const balao = document.getElementById('chatBalloon');
             if (balao) balao.classList.add('hidden');
             
+            console.log('Tentando iniciar chat...');
+            
             // Verificar se a API está disponível
-            if (typeof embeddedservice_bootstrap !== 'undefined' && 
-                embeddedservice_bootstrap.utilAPI && 
-                typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function') {
-                
+            if (verificarEswInicializado()) {
+                // API disponível, tenta lançar o chat
                 embeddedservice_bootstrap.utilAPI.launchChat()
+                    .then(() => {
+                        console.log('Chat iniciado com sucesso!');
+                        chatInicializado = true;
+                        setCarregando(false);
+                    })
                     .catch((erro) => {
                         console.error('Erro ao iniciar chat:', erro);
                         if (balao) balao.classList.remove('hidden');
+                        setCarregando(false);
                         alert('Não foi possível iniciar o chat. Por favor, tente novamente mais tarde.');
                     });
             } else {
-                // Se a API não estiver disponível e ainda não atingimos o máximo de tentativas
+                // API não disponível
                 if (tentativas < maxTentativas) {
                     tentativas++;
                     console.log(`API do chat não disponível. Tentativa ${tentativas} de ${maxTentativas}...`);
                     
+                    // Se é a primeira tentativa e o script ainda não foi carregado, tenta carregar
+                    if (tentativas === 1 && !document.getElementById('bootstrap-script')) {
+                        carregarScriptChat();
+                    }
+                    
                     // Tentar novamente após um intervalo
-                    setTimeout(tentarIniciarChat, intervaloTentativa);
+                    setTimeout(() => {
+                        if (!chatInicializado) {
+                            tentarIniciarChat();
+                        }
+                    }, intervaloTentativa);
                 } else {
                     console.error('API do chat não está disponível após várias tentativas');
                     if (balao) balao.classList.remove('hidden');
                     
-                    // Tenta reiniciar o chat do zero
+                    // Recarrega tudo
                     console.log('Tentando reiniciar o chat...');
                     tentativas = 0; // Reset tentativas
+                    setCarregando(false);
                     
                     // Remove scripts antigos
                     var scriptAntigo = document.getElementById('bootstrap-script');
@@ -184,13 +256,34 @@
             }
         }
         
+        // Função para carregar o script do Salesforce ESW
         function carregarScriptChat() {
+            // Remove script existente se houver
+            var scriptExistente = document.getElementById('bootstrap-script');
+            if (scriptExistente) {
+                scriptExistente.remove();
+            }
+            
+            console.log('Carregando script do chat...');
+            
             // Cria o novo script
             var script = document.createElement('script');
             script.id = 'bootstrap-script';
             script.type = 'text/javascript';
             script.src = 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js';
-            script.onload = initEmbeddedMessaging;
+            
+            // Eventos do script
+            script.onload = function() {
+                console.log('Script do chat carregado com sucesso');
+                // Espera um pouco antes de inicializar
+                setTimeout(initEmbeddedMessaging, 1500);
+            };
+            
+            script.onerror = function(e) {
+                console.error('Erro ao carregar o script do chat:', e);
+                setCarregando(false);
+                alert('Não foi possível carregar o serviço de chat. Verifique sua conexão de internet.');
+            };
             
             // Adiciona o script na página
             document.head.appendChild(script);
@@ -198,33 +291,93 @@
         
         // Função para inicializar o chat com delay para garantir carregamento completo
         function initEmbeddedMessaging() {
-            // Pequeno delay para garantir carregamento completo da página
-            setTimeout(function() {
-                try {
-                    embeddedservice_bootstrap.settings.language = 'pt_BR';
-                    embeddedservice_bootstrap.settings.displayHelpButton = false;
-                    embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
-                    
-                    embeddedservice_bootstrap.init(
-                        '00DVA000001eH3B',
-                        'ChatAdium_GitHubPages',
-                        'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
-                        {
-                            scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
-                        }
-                    );
-                    
-                    console.log('Chat inicializado com sucesso!');
-                } catch (err) {
-                    console.error('Erro ao carregar o Embedded Messaging:', err);
+            try {
+                // Verifica se o objeto bootstrap existe
+                if (typeof embeddedservice_bootstrap === 'undefined') {
+                    console.error('embeddedservice_bootstrap não está definido');
+                    setTimeout(initEmbeddedMessaging, 2000); // Tenta novamente após 2 segundos
+                    return;
                 }
-            }, 1000);
+                
+                console.log('Inicializando serviço de chat...');
+                
+                // Configura o chat
+                embeddedservice_bootstrap.settings.language = 'pt_BR';
+                embeddedservice_bootstrap.settings.displayHelpButton = false;
+                embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
+                
+                // Inicializa o chat
+                embeddedservice_bootstrap.init(
+                    '00DVA000001eH3B',
+                    'ChatAdium_GitHubPages',
+                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
+                    {
+                        scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
+                    }
+                );
+                
+                // Adiciona evento para notificar quando o chat estiver pronto
+                if (embeddedservice_bootstrap.utilAPI) {
+                    embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', function() {
+                        console.log('Chat inicializado e pronto para uso!');
+                        chatInicializado = true;
+                        setCarregando(false);
+                    });
+                    
+                    embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', function() {
+                        console.log('Chat encerrado');
+                        const balao = document.getElementById('chatBalloon');
+                        if (balao) balao.classList.remove('hidden');
+                    });
+                }
+                
+                console.log('Chat inicializado com sucesso!');
+            } catch (err) {
+                console.error('Erro ao inicializar o Embedded Messaging:', err);
+                setCarregando(false);
+                alert('Erro ao inicializar o chat. Recarregue a página e tente novamente.');
+            }
         }
+        
+        // Detecta erros de script
+        window.addEventListener('error', function(e) {
+            if (e.filename && e.filename.includes('bootstrap.min.js')) {
+                console.error('Erro no script do Salesforce:', e.message);
+                setCarregando(false);
+            }
+        });
     </script>
     
     <!-- Carrega o script do chat automaticamente ao carregar a página -->
     <script type="text/javascript">
-        window.addEventListener('load', carregarScriptChat);
+        // Espera a página carregar completamente
+        window.addEventListener('load', function() {
+            // Pequeno delay antes de carregar o script
+            setTimeout(carregarScriptChat, 1000);
+            
+            // Adiciona toggle para o balão de mensagem no hover
+            const balao = document.getElementById('chatBalloon');
+            const botao = document.getElementById('botaoChat');
+            
+            // Mostra o balão quando o mouse passar sobre o botão
+            botao.addEventListener('mouseenter', function() {
+                if (!chatCarregando && !chatInicializado) {
+                    balao.classList.remove('hidden');
+                }
+            });
+            
+            // Esconde o balão quando o mouse sair do botão
+            botao.addEventListener('mouseleave', function() {
+                setTimeout(function() {
+                    balao.classList.add('hidden');
+                }, 2000);
+            });
+            
+            // Esconde o balão após 5 segundos
+            setTimeout(function() {
+                balao.classList.add('hidden');
+            }, 5000);
+        });
     </script>
 </body>
 </html>
