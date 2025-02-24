@@ -209,20 +209,19 @@
             align-items: center;
             justify-content: center;
             background: #ff0000;
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             padding: 0;
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
             transition: all 0.3s ease;
             overflow: hidden;
         }
         
         .botao-chat:hover {
             background: #e60000;
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
             transform: scale(1.05);
         }
         
@@ -235,9 +234,8 @@
         }
         
         .chat-img {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
+            width: 55%;
+            height: auto;
         }
         
         /* Classe para esconder o balão quando o chat estiver aberto */
@@ -501,11 +499,9 @@
     <div class="botao-chat-container">
         <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
         <button id="botaoChat" class="botao-chat" onclick="iniciarChat()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="chat-img">
-                <path d="M6 2H18C19.1 2 20 2.9 20 4V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2Z" fill="white"/>
-                <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" fill="white"/>
-                <path d="M16 7H8C7.45 7 7 7.45 7 8V16C7 16.55 7.45 17 8 17H16C16.55 17 17 16.55 17 16V8C17 7.45 16.55 7 16 7ZM12 16C10.34 16 9 14.66 9 13C9 11.34 10.34 10 12 10C13.66 10 15 11.34 15 13C15 14.66 13.66 16 12 16Z" fill="white"/>
-            </svg>
+            <img src="https://anderson-teixeira.github.io/images/Adium%20Logo%20vermelho.png" 
+                 alt="Logo Adium" 
+                 class="chat-img"/>
         </button>
     </div>
 </body>
