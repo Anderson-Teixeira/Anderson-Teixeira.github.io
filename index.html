@@ -165,12 +165,6 @@
                 embeddedservice_bootstrap.settings.displayHelpButton = false;
                 embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
                 
-                // Adicionar evento para capturar quando o serviço estiver carregado
-                embeddedservice_bootstrap.addEventHandler("afterInitialization", function() {
-                    console.log("Chat inicializado com sucesso!");
-                    chatPronto = true;
-                });
-                
                 embeddedservice_bootstrap.init(
                     '00DVA000001eH3B',
                     'AdiumZodiacChat',
@@ -179,6 +173,16 @@
                         scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
                     }
                 );
+                
+                // Verificar periodicamente se a API está disponível
+                var checkAPIInterval = setInterval(function() {
+                    if (embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                        console.log("Chat API disponível");
+                        chatPronto = true;
+                        clearInterval(checkAPIInterval);
+                    }
+                }, 1000);
+                
             } catch (err) {
                 console.error('Error loading Embedded Messaging: ', err);
             }
