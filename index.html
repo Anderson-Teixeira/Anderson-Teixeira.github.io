@@ -27,12 +27,6 @@
       color: #333;
       border: 1px solid #e0e0e0;
       animation: fadeIn 0.3s ease-in-out;
-      transition: opacity 0.3s ease;
-    }
-    
-    .chat-balloon.hidden {
-      opacity: 0;
-      visibility: hidden;
     }
 
     .chat-balloon::after {
@@ -62,22 +56,9 @@
       cursor: pointer;
       box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
       transition: all 0.3s ease;
-      border: none;
-      position: relative;
     }
-
-    .botao-chat:hover { 
-      transform: scale(1.1); 
-    }
-
-    .botao-chat:disabled { 
-      background: #ffcccc; 
-      cursor: not-allowed; 
-    }
-
-    .botao-chat.loading .chat-img {
-      opacity: 0;
-    }
+    .botao-chat:hover { transform: scale(1.1); }
+    .botao-chat:disabled { background: #ffcccc; cursor: not-allowed; display: none; }
 
     .loading-indicator {
       display: none;
@@ -87,25 +68,8 @@
       border-radius: 50%;
       border-top-color: white;
       animation: spin 1s infinite;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
     }
-
-    .botao-chat.loading .loading-indicator {
-      display: block;
-    }
-
-    @keyframes spin { 
-      to { transform: translate(-50%, -50%) rotate(360deg); } 
-    }
-    
-    .chat-img {
-      max-width: 30px;
-      max-height: 30px;
-      transition: opacity 0.2s ease;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -119,7 +83,6 @@
 
   <script>
     const ChatApp = (() => {
-      // Configurações do chat
       const config = {
         scriptUrl: 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js',
         orgId: '00DVA000001eH3B',
@@ -130,156 +93,109 @@
         intervalo: 2000
       };
       
-      // Estado do aplicativo
       let tentativas = 0;
       let carregando = false;
       let inicializado = false;
-      let scriptCarregado = false;
       
-      // Elementos do DOM
       const botao = document.getElementById('botaoChat');
       const balao = document.getElementById('chatBalloon');
 
-      // Atualiza a interface para indicar carregamento
       const setCarregando = (estado) => {
         carregando = estado;
         botao.classList.toggle('loading', estado);
         botao.disabled = estado;
-        
-        if (estado) {
-          balao.classList.add('hidden');
-        } else if (!inicializado) {
-          balao.classList.remove('hidden');
-        }
+        balao.classList.add('hidden');
       };
       
-      // Verifica se a API do Salesforce já está disponível
-      const verificarAPIDisponivel = () => {
-        return typeof embeddedservice_bootstrap !== 'undefined' &&
-               embeddedservice_bootstrap.utilAPI &&
-               typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
-      };
+      const verificarAPIDisponivel = () => typeof embeddedservice_bootstrap !== 'undefined' &&
+                                         embeddedservice_bootstrap.utilAPI &&
+                                         typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
 
-      // Carrega o script do Salesforce Chat
       const carregarScript = () => {
-        // Evita carregar o script múltiplas vezes
-        if (document.getElementById('bootstrap-script') || scriptCarregado) {
+        if (document.getElementById('bootstrap-script')) {
+          console.warn("Script já carregado, ignorando novo carregamento.");
           return;
         }
-        
-        scriptCarregado = true;
-        
+
+        console.log("Carregando script do chat...");
         const script = document.createElement('script');
         script.id = 'bootstrap-script';
         script.type = 'text/javascript';
         script.src = config.scriptUrl;
-        
         script.onload = () => {
-          console.log('Script do chat carregado com sucesso');
+          console.log("Script carregado com sucesso.");
           setTimeout(configurarChat, 1500);
         };
-        
-        script.onerror = (erro) => {
-          console.error('Erro ao carregar o script do chat:', erro);
-          alert('Erro ao carregar o chat. Verifique a conexão e tente novamente.');
-          scriptCarregado = false;
-          setCarregando(false);
+        script.onerror = () => {
+          console.error("Erro ao carregar o script do chat.");
+          alert('Erro ao carregar o chat.');
         };
-        
         document.head.appendChild(script);
       };
 
-      // Configura o chat após o script ser carregado
       const configurarChat = () => {
         if (!verificarAPIDisponivel()) {
-          console.log('API do chat ainda não disponível, tentando novamente...');
-          tentativas++;
-          
-          if (tentativas < config.maxTentativas) {
-            setTimeout(configurarChat, config.intervalo);
-          } else {
-            console.error('API do chat não disponível após várias tentativas');
-            alert('O serviço de chat não está respondendo. Tente novamente mais tarde.');
-            tentativas = 0;
-            scriptCarregado = false;
-            setCarregando(false);
-          }
+          console.warn("API do chat não disponível, tentando novamente...");
+          setTimeout(configurarChat, 2000);
           return;
         }
-        
-        console.log('Inicializando o chat...');
-        
-        try {
-          embeddedservice_bootstrap.init(
-            config.orgId,
-            config.componentName,
-            config.deploymentUrl,
-            { scrt2URL: config.scrtUrl }
-          );
-          
-          // Evento após a inicialização do chat
-          embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', () => {
-            console.log('Chat inicializado com sucesso');
-            inicializado = true;
-            setCarregando(false);
-            tentativas = 0;
-          });
-          
-          // Evento após o chat ser fechado
-          embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', () => {
-            console.log('Chat fechado');
-            inicializado = false;
-            balao.classList.remove('hidden');
-          });
-          
-          console.log('Configuração do chat concluída');
-        } catch (erro) {
-          console.error('Erro ao configurar o chat:', erro);
-          alert('Ocorreu um erro ao configurar o chat. Por favor, atualize a página e tente novamente.');
-          scriptCarregado = false;
+
+        console.log("Inicializando chat...");
+        embeddedservice_bootstrap.init(
+          config.orgId,
+          config.componentName,
+          config.deploymentUrl,
+          { scrt2URL: config.scrtUrl }
+        );
+
+        embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', () => {
+          console.log("Chat inicializado com sucesso.");
+          inicializado = true;
           setCarregando(false);
-        }
+        });
+
+        embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', () => {
+          console.log("Chat encerrado.");
+          inicializado = false;
+          balao.classList.remove('hidden');
+        });
       };
-      
-      // Inicia o chat quando o botão é clicado
+
       const iniciar = () => {
         if (carregando) return;
-        
-        console.log('Iniciando chat...');
         setCarregando(true);
         
         if (verificarAPIDisponivel()) {
-          console.log('API disponível, abrindo chat...');
-          
+          console.log("Lançando chat...");
           embeddedservice_bootstrap.utilAPI.launchChat()
             .then(() => {
-              console.log('Chat aberto com sucesso');
+              console.log("Chat iniciado com sucesso.");
               inicializado = true;
               setCarregando(false);
             })
-            .catch((erro) => {
-              console.error('Erro ao abrir o chat:', erro);
+            .catch(() => {
+              console.error("Erro ao iniciar o chat.");
               setCarregando(false);
-              alert('Erro ao iniciar o chat. Tente novamente.');
+              alert('Erro ao iniciar o chat.');
             });
-        } else {
-          console.log('API não disponível, tentando carregar o script...');
-          
-          if (!document.getElementById('bootstrap-script') && !scriptCarregado) {
-            carregarScript();
-          }
-          
+        } else if (tentativas < config.maxTentativas) {
+          tentativas++;
+          console.warn(`Tentativa ${tentativas}/${config.maxTentativas} de iniciar o chat...`);
+          if (tentativas === 1 && !document.getElementById('bootstrap-script')) carregarScript();
           setTimeout(iniciar, config.intervalo);
+        } else {
+          tentativas = 0;
+          setCarregando(false);
+          console.error("O serviço de chat não está respondendo.");
+          alert('O serviço de chat não está respondendo.');
         }
       };
-      
-      // Carrega o script do chat quando a página é carregada
+
       window.addEventListener('load', () => {
-        console.log('Página carregada, iniciando carregamento do script do chat...');
+        console.log("Página carregada, iniciando carregamento do script...");
         setTimeout(carregarScript, 1000);
       });
-      
-      // Funções públicas
+
       return { iniciar };
     })();
   </script>
