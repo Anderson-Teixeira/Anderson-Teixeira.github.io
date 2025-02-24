@@ -112,64 +112,90 @@
                                          typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
 
       const carregarScript = () => {
+        if (document.getElementById('bootstrap-script')) {
+          console.warn("Script já carregado, ignorando novo carregamento.");
+          return;
+        }
+
+        console.log("Carregando script do chat...");
         const script = document.createElement('script');
         script.id = 'bootstrap-script';
         script.type = 'text/javascript';
         script.src = config.scriptUrl;
-        script.onload = () => setTimeout(configurarChat, 1500);
-        script.onerror = () => alert('Erro ao carregar o chat.');
+        script.onload = () => {
+          console.log("Script carregado com sucesso.");
+          setTimeout(configurarChat, 1500);
+        };
+        script.onerror = () => {
+          console.error("Erro ao carregar o script do chat.");
+          alert('Erro ao carregar o chat.');
+        };
         document.head.appendChild(script);
       };
 
       const configurarChat = () => {
         if (!verificarAPIDisponivel()) {
+          console.warn("API do chat não disponível, tentando novamente...");
           setTimeout(configurarChat, 2000);
           return;
         }
-        
+
+        console.log("Inicializando chat...");
         embeddedservice_bootstrap.init(
           config.orgId,
           config.componentName,
           config.deploymentUrl,
           { scrt2URL: config.scrtUrl }
         );
-        
+
         embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', () => {
+          console.log("Chat inicializado com sucesso.");
           inicializado = true;
           setCarregando(false);
         });
-        
+
         embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', () => {
+          console.log("Chat encerrado.");
           inicializado = false;
           balao.classList.remove('hidden');
         });
       };
-      
+
       const iniciar = () => {
         if (carregando) return;
         setCarregando(true);
         
         if (verificarAPIDisponivel()) {
-          embeddedservice_bootstrap.utilAPI.launchChat().then(() => {
-            inicializado = true;
-            setCarregando(false);
-          }).catch(() => {
-            setCarregando(false);
-            alert('Erro ao iniciar o chat.');
-          });
+          console.log("Lançando chat...");
+          embeddedservice_bootstrap.utilAPI.launchChat()
+            .then(() => {
+              console.log("Chat iniciado com sucesso.");
+              inicializado = true;
+              setCarregando(false);
+            })
+            .catch(() => {
+              console.error("Erro ao iniciar o chat.");
+              setCarregando(false);
+              alert('Erro ao iniciar o chat.');
+            });
         } else if (tentativas < config.maxTentativas) {
           tentativas++;
+          console.warn(`Tentativa ${tentativas}/${config.maxTentativas} de iniciar o chat...`);
           if (tentativas === 1 && !document.getElementById('bootstrap-script')) carregarScript();
           setTimeout(iniciar, config.intervalo);
         } else {
           tentativas = 0;
           setCarregando(false);
-          carregarScript();
+          console.error("O serviço de chat não está respondendo.");
           alert('O serviço de chat não está respondendo.');
         }
       };
-      
-      window.addEventListener('load', () => setTimeout(carregarScript, 1000));
+
+      window.addEventListener('load', () => {
+        console.log("Página carregada, iniciando carregamento do script...");
+        setTimeout(carregarScript, 1000);
+      });
+
       return { iniciar };
     })();
   </script>
