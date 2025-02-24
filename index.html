@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Adium</title>
   <style>
-    .embeddedServiceHelpButton { display: none !important; }
+    .embeddedServiceHelpButton { display: none !important; visibility: hidden !important; }
     
-    .chat-container {
+    .botao-chat-container {
       position: fixed;
       bottom: 30px;
       right: 30px;
@@ -21,12 +21,14 @@
       background: #fff;
       padding: 12px 20px;
       border-radius: 20px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      font-family: Arial, sans-serif;
       font-size: 14px;
+      color: #333;
+      position: relative;
       margin-right: 10px;
       border: 1px solid #e0e0e0;
-      animation: fadeIn 0.3s;
-      position: relative;
+      animation: fadeIn 0.3s ease-in-out;
     }
     
     .chat-balloon::after {
@@ -40,57 +42,56 @@
       border-bottom: 8px solid transparent;
     }
     
-    .btn-chat {
-      position: relative;
-      width: 55px;
-      height: 55px;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      background: #ff0000;
-      box-shadow: 0 2px 12px rgba(255,0,0,0.2);
-      transition: all 0.3s;
-      overflow: hidden;
+    .botao-chat {
       display: flex;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(to right, #ff0000, #e60000);
+      width: 55px;
+      height: 55px;
       padding: 0;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(255, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      overflow: hidden;
     }
     
-    .btn-chat:hover {
+    .botao-chat:hover {
       background: linear-gradient(to right, #e60000, #cc0000);
-      box-shadow: 0 4px 15px rgba(255,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
       transform: scale(1.1);
     }
     
-    .btn-chat:disabled {
+    .botao-chat:disabled {
       background: #ffcccc;
       cursor: not-allowed;
+      box-shadow: none;
       transform: none;
     }
     
-    .logo-img {
+    .chat-img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
       padding: 8px;
       box-sizing: border-box;
-      object-fit: contain;
     }
     
-    .loader {
+    .loading-indicator {
       display: none;
       position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 24px;
       height: 24px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top: 3px solid white;
+      border: 3px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
     }
-    
-    .btn-chat.loading .loader { display: block; }
-    .btn-chat.loading .logo-img { opacity: 0.5; }
-    .hidden { display: none !important; }
     
     @keyframes fadeIn {
       from { opacity: 0; transform: translateX(-20px); }
@@ -98,125 +99,150 @@
     }
     
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
     }
+    
+    .botao-chat.loading .loading-indicator { display: block; }
+    .botao-chat.loading .chat-img { opacity: 0.5; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="chat-container">
+  <div class="botao-chat-container">
     <div id="chatBalloon" class="chat-balloon">Como posso ajudar?</div>
-    <button id="chatBtn" class="btn-chat" onclick="ChatApp.start()">
-      <div class="loader"></div>
-      <img src="images/Adium Logo vermelho.png" alt="Logo Adium" class="logo-img">
+    <button id="botaoChat" class="botao-chat" onclick="ChatApp.iniciar()">
+      <div class="loading-indicator"></div>
+      <img src="images/Adium Logo vermelho.png" alt="Logo Adium" class="chat-img">
     </button>
   </div>
 
   <script>
     // Namespace para aplicação de chat
     const ChatApp = (() => {
-      // Configurações e estado
+      // Configurações
       const config = {
-        script: 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js',
+        scriptUrl: 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js',
         orgId: '00DVA000001eH3B',
         componentName: 'ChatAdium_GitHubPages',
         deploymentUrl: 'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
         scrtUrl: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com',
-        maxRetries: 5,
-        retryDelay: 2000
+        maxTentativas: 5,
+        intervalo: 2000
       };
       
-      let state = {
-        retries: 0,
-        loading: false
-      };
+      // Estado
+      let tentativas = 0;
+      let carregando = false;
+      let inicializado = false;
       
-      // Elementos DOM
-      const elements = {
-        btn: null,
-        balloon: null
-      };
+      // Cache de elementos DOM
+      let botao, balao;
       
       // Inicialização
       const init = () => {
-        elements.btn = document.getElementById('chatBtn');
-        elements.balloon = document.getElementById('chatBalloon');
+        botao = document.getElementById('botaoChat');
+        balao = document.getElementById('chatBalloon');
         
-        // Carregar script do chat
-        setTimeout(loadScript, 1000);
+        // Carregar script
+        setTimeout(carregarScript, 1000);
         
         // Configurar interações do balão
-        elements.btn.addEventListener('mouseenter', () => {
-          if (!state.loading) elements.balloon.classList.remove('hidden');
+        botao.addEventListener('mouseenter', () => {
+          if (!carregando && !inicializado) {
+            balao.classList.remove('hidden');
+          }
         });
         
-        elements.btn.addEventListener('mouseleave', () => {
-          setTimeout(() => elements.balloon.classList.add('hidden'), 2000);
+        botao.addEventListener('mouseleave', () => {
+          setTimeout(() => {
+            balao.classList.add('hidden');
+          }, 2000);
         });
         
-        setTimeout(() => elements.balloon.classList.add('hidden'), 5000);
+        // Esconder balão após 5 segundos
+        setTimeout(() => {
+          balao.classList.add('hidden');
+        }, 5000);
       };
       
-      // Atualiza UI com estado de carregamento
-      const setLoading = (isLoading) => {
-        state.loading = isLoading;
+      // Gerencia estado de carregamento
+      const setCarregando = (estado) => {
+        carregando = estado;
         
-        if (isLoading) {
-          elements.btn.classList.add('loading');
-          elements.btn.disabled = true;
-          elements.balloon.classList.add('hidden');
+        if (estado) {
+          botao.classList.add('loading');
+          botao.disabled = true;
+          balao.classList.add('hidden');
         } else {
-          elements.btn.classList.remove('loading');
-          elements.btn.disabled = false;
+          botao.classList.remove('loading');
+          botao.disabled = false;
         }
       };
       
+      // Verifica se API está pronta
+      const verificarAPIDisponivel = () => {
+        return typeof embeddedservice_bootstrap !== 'undefined' && 
+               embeddedservice_bootstrap.utilAPI && 
+               typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
+      };
+      
       // Carrega o script do Salesforce
-      const loadScript = () => {
-        document.getElementById('bootstrap-script')?.remove();
+      const carregarScript = () => {
+        // Remove script existente se houver
+        const scriptExistente = document.getElementById('bootstrap-script');
+        if (scriptExistente) {
+          scriptExistente.remove();
+        }
         
+        // Cria o novo script
         const script = document.createElement('script');
         script.id = 'bootstrap-script';
-        script.src = config.script;
-        script.onload = () => setTimeout(setupChat, 1500);
+        script.type = 'text/javascript';
+        script.src = config.scriptUrl;
+        
+        // Eventos do script
+        script.onload = () => setTimeout(configurarChat, 1500);
+        
         script.onerror = () => {
-          setLoading(false);
+          setCarregando(false);
           alert('Não foi possível carregar o serviço de chat. Verifique sua conexão.');
         };
         
+        // Adiciona script na página
         document.head.appendChild(script);
       };
       
       // Configura o chat do Salesforce
-      const setupChat = () => {
+      const configurarChat = () => {
         try {
           if (typeof embeddedservice_bootstrap === 'undefined') {
-            setTimeout(setupChat, 2000);
+            setTimeout(configurarChat, 2000);
             return;
           }
           
           // Configurações do chat
           const settings = embeddedservice_bootstrap.settings;
           
-          // Básicas
+          // Configurações básicas
           settings.language = 'pt_BR';
           settings.displayHelpButton = false;
           settings.chatButtonPosition = "-30px,-200px";
           
-          // Visuais
+          // Configuração de avatares e logos
           settings.avatarImgURL = "images/Adium Logo vermelho.png";
           settings.chatbotAvatarImgURL = "images/Adium Logo vermelho.png";
           settings.smallCompanyLogoImgURL = "images/Adium Logo vermelho.png";
+          
+          // Configurações adicionais
+          settings.storageDomain = window.location.hostname;
           settings.loadingText = "Conectando...";
           settings.defaultMinimizedText = "Fale com a Adium";
           
-          // Domínio para persistência
-          settings.storageDomain = window.location.hostname;
-          
-          // Tamanho do widget
+          // Tamanhos da janela de chat
           settings.widgetWidth = "320px";
           settings.widgetHeight = "500px";
           
-          // Inicializar
+          // Inicializar o chat
           embeddedservice_bootstrap.init(
             config.orgId,
             config.componentName,
@@ -224,67 +250,85 @@
             { scrt2URL: config.scrtUrl }
           );
           
-          // Adicionar listener para quando estiver pronto
+          // Adicionar eventos
           if (embeddedservice_bootstrap.utilAPI) {
-            embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', () => setLoading(false));
+            embeddedservice_bootstrap.utilAPI.addEventHandler('afterInit', () => {
+              inicializado = true;
+              setCarregando(false);
+            });
+            
+            embeddedservice_bootstrap.utilAPI.addEventHandler('afterDestroy', () => {
+              inicializado = false;
+              balao.classList.remove('hidden');
+            });
           }
         } catch (err) {
-          setLoading(false);
+          setCarregando(false);
           alert('Erro ao inicializar o chat. Recarregue a página e tente novamente.');
         }
       };
       
       // Inicia o chat quando o botão é clicado
-      const start = () => {
-        if (state.loading) return;
-        setLoading(true);
+      const iniciar = () => {
+        if (carregando) return;
         
-        // Verifica se a API está disponível
-        if (isChatAPIReady()) {
-          launchChat();
-        } else if (state.retries < config.maxRetries) {
-          state.retries++;
+        setCarregando(true);
+        balao.classList.add('hidden');
+        
+        // Verificar se a API está disponível
+        if (verificarAPIDisponivel()) {
+          // Launch chat
+          embeddedservice_bootstrap.utilAPI.launchChat()
+            .then(() => {
+              inicializado = true;
+              setCarregando(false);
+            })
+            .catch(() => {
+              setCarregando(false);
+              balao.classList.remove('hidden');
+              alert('Não foi possível iniciar o chat. Tente novamente mais tarde.');
+            });
+        } else if (tentativas < config.maxTentativas) {
+          tentativas++;
           
-          // Carrega o script se for a primeira tentativa
-          if (state.retries === 1 && !document.getElementById('bootstrap-script')) {
-            loadScript();
+          // Se é a primeira tentativa, carrega o script
+          if (tentativas === 1 && !document.getElementById('bootstrap-script')) {
+            carregarScript();
           }
           
-          // Tentar novamente
-          setTimeout(start, config.retryDelay);
+          // Tentar novamente após intervalo
+          setTimeout(iniciar, config.intervalo);
         } else {
-          // Resetar e recarregar
-          state.retries = 0;
-          setLoading(false);
-          loadScript();
+          // Reset e recarregar
+          tentativas = 0;
+          setCarregando(false);
+          
+          // Remove scripts antigos
+          const scriptAntigo = document.getElementById('bootstrap-script');
+          if (scriptAntigo) {
+            scriptAntigo.remove();
+          }
+          
+          // Recarrega o script
+          carregarScript();
           alert('O serviço de chat não está respondendo. Recarregando componentes...');
         }
       };
       
-      // Verifica se a API está pronta
-      const isChatAPIReady = () => {
-        return typeof embeddedservice_bootstrap !== 'undefined' && 
-               embeddedservice_bootstrap.utilAPI && 
-               typeof embeddedservice_bootstrap.utilAPI.launchChat === 'function';
-      };
+      // Detecta erros de script
+      window.addEventListener('error', (e) => {
+        if (e.filename && e.filename.includes('bootstrap.min.js')) {
+          setCarregando(false);
+        }
+      });
       
-      // Abre o chat
-      const launchChat = () => {
-        embeddedservice_bootstrap.utilAPI.launchChat()
-          .then(() => setLoading(false))
-          .catch(() => {
-            setLoading(false);
-            alert('Não foi possível iniciar o chat. Tente novamente mais tarde.');
-          });
-      };
-      
-      // Inicializa quando a página carrega
+      // Inicializar quando a página carregar
       window.addEventListener('load', init);
       
       // API pública
       return {
-        start,
-        loadScript
+        iniciar,
+        carregarScript
       };
     })();
   </script>
