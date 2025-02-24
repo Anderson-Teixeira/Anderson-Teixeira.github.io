@@ -134,6 +134,9 @@
 
     <!-- Script para iniciar o chat quando o botão for clicado -->
     <script type="text/javascript">
+        // Variável global para verificar se o chat está pronto
+        var chatPronto = false;
+        
         function iniciarChat() {
             const balao = document.getElementById('chatBalloon');
             if (balao) balao.classList.add('hidden');
@@ -153,11 +156,15 @@
             }
         }
         
-        // Variável global para verificar se o chat está pronto
-        var chatPronto = false;
+        // Verificar periodicamente se a API está disponível
+        setInterval(function() {
+            if (embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                chatPronto = true;
+            }
+        }, 1000);
     </script>
 
-    <!-- Script do Salesforce Embedded Service -->
+    <!-- Script do Salesforce Embedded Service - Novo snippet fornecido -->
     <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
@@ -167,29 +174,19 @@
                 
                 embeddedservice_bootstrap.init(
                     '00DVA000001eH3B',
-                    'AdiumZodiacChat',
-                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537',
+                    'ChatAdium_GitHubPages',
+                    'https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405',
                     {
                         scrt2URL: 'https://adiumbr--devchatbot.sandbox.my.salesforce-scrt.com'
                     }
                 );
-                
-                // Verificar periodicamente se a API está disponível
-                var checkAPIInterval = setInterval(function() {
-                    if (embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
-                        console.log("Chat API disponível");
-                        chatPronto = true;
-                        clearInterval(checkAPIInterval);
-                    }
-                }, 1000);
-                
             } catch (err) {
                 console.error('Error loading Embedded Messaging: ', err);
             }
         }
     </script>
     <script type='text/javascript' 
-            src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWAdiumZodiacChat1726660931537/assets/js/bootstrap.min.js' 
+            src='https://adiumbr--devchatbot.sandbox.my.site.com/ESWChatAdiumGitHubPages1740412245405/assets/js/bootstrap.min.js' 
             onload='initEmbeddedMessaging()'>
     </script>
 </body>
