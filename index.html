@@ -47,13 +47,14 @@
       border: none;
       border-radius: 50%;
       cursor: pointer;
-      background: linear-gradient(to right, #ff0000, #e60000);
+      background: #ff0000;
       box-shadow: 0 2px 12px rgba(255,0,0,0.2);
       transition: all 0.3s;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0;
     }
     
     .btn-chat:hover {
@@ -69,9 +70,10 @@
     }
     
     .logo-img {
-      width: 70%;
-      height: 70%;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      box-sizing: border-box;
     }
     
     .loader {
