@@ -192,25 +192,10 @@
                     return;
                 }
                 
-                // Configurações visuais do chat
+                // Configura o chat
                 embeddedservice_bootstrap.settings.language = 'pt_BR';
                 embeddedservice_bootstrap.settings.displayHelpButton = false;
                 embeddedservice_bootstrap.settings.chatButtonPosition = "-30px,-200px";
-                
-                // Configuração de avatares e logos
-                embeddedservice_bootstrap.settings.avatarImgURL = "images/Adium Logo vermelho.png";
-                embeddedservice_bootstrap.settings.chatbotAvatarImgURL = "images/Adium Logo vermelho.png";
-                embeddedservice_bootstrap.settings.smallCompanyLogoImgURL = "images/Adium Logo vermelho.png";
-                
-                // Configurações adicionais
-                embeddedservice_bootstrap.settings.storageDomain = window.location.hostname;
-                embeddedservice_bootstrap.settings.loadingText = "Conectando...";
-                embeddedservice_bootstrap.settings.defaultMinimizedText = "Fale com a Adium";
-                
-                // Dimensões da janela de chat
-                embeddedservice_bootstrap.settings.widgetWidth = "320px";
-                embeddedservice_bootstrap.settings.widgetHeight = "500px";
-                embeddedservice_bootstrap.settings.widgetFontSize = "16px";
                 
                 // Inicializa o chat
                 embeddedservice_bootstrap.init(
